@@ -96,7 +96,14 @@ def format_listbox_keydata(keydata):
 
     result = "<b>{0}</b>\t\t\t{1}\n".format(keyid, nsigs)
     for uid in uids:
-        result += "{}\n".format(uid['uid'])
+        print ("id")
+        print (uid)
+        print ()
+        print()
+        uidstr = uid['uid'].replace('<', '').replace('>', '')
+        print (uidstr)
+        print ('---')
+        result += "{}\n".format(uid['uid'].replace('<', '').replace('>', ''))
     result += "\n"
     result += "<small>Expires {}</small>".format(expire)
 
@@ -105,7 +112,7 @@ def format_listbox_keydata(keydata):
 def format_details_keydata(keydata):
     result = ""
     for uid in keydata['uids']:
-        result += "{}\n".format(uid['uid'])
+        result += "{}\n".format(uid['uid']    .replace('<', '').replace('>', ''))
 
     return result
 
@@ -130,7 +137,7 @@ class ListBoxRowWithKeyData(Gtk.ListBoxRow):
         self.data = keydata
 
         label = Gtk.Label()
-        label.set_markup(keydata)
+        label.set_markup(keydata.replace('<', '').replace('>', ''))
         self.add(label)
 
 
@@ -271,13 +278,13 @@ class Application(Gtk.Application):
 
                 if val['fpr'] == entryObject.get_text():
                     keyIdsLabel = self.builder.get_object("key_ids_label")
-                    keyIdsLabel.set_markup(key['id'])
+                    keyIdsLabel.set_markup(key['id'].replace('<>',''))
 
                     uidsLabel = self.builder.get_object("uids_label")
                     markup = ""
                     for uid in key['uids']:
                         markup += uid['uid'] + "\n"
-                    uidsLabel.set_markup(markup)
+                    uidsLabel.set_markup(markup.replace('<>','').replace('@','at'))
 
                     self.stack3.set_visible_child_name('page1')
                     self.last_state = self.state
@@ -302,10 +309,14 @@ class Application(Gtk.Application):
 
         keyidLabel = self.builder.get_object("keyidLabel")
         keyid_str = "{0}".format(key['id'])
-        keyidLabel.set_markup(keyid_str)
+        keyidLabel.set_markup(keyid_str.replace('<', '').replace('>', ''))
 
         uidsLabel = self.builder.get_object("uidsLabel")
-        uidsLabel.set_markup(format_details_keydata(key))
+        uidsLabel.set_markup(
+            format_details_keydata(
+                key
+            )
+        )
 
         fpr = format_fpr(key['fpr'])
         keyFingerprintLabel = self.builder.get_object("keyFingerprintLabel")
