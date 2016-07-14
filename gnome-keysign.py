@@ -14,7 +14,7 @@ from gi.repository import (
     Gtk
 )
 
-data = {
+_data = {
     'key1' : {'id':'2048R/ED8312A2 2014-04-08',
               'fpr':'BEFDD433DCF8956D0D36011B4B032D3DED8312A2',
               'uids':[
@@ -59,6 +59,10 @@ data = {
               'nsigs':3
              },
 }
+
+def get_secret_keys(pattern=None):
+    return _data
+
 
 # The states that the app can have during run-time
 UNKNOWN_STATE = 0
@@ -151,8 +155,10 @@ class Application(Gtk.Application):
         self.back_refresh_button = self.builder.get_object("button1")
 
         # Update the key list with the user's own keys
+        #keys = gpgmh.get_usable_secret_keys_json()
+        keys = get_secret_keys()
         listBox = self.builder.get_object('listbox1')
-        for key,val in data.items():
+        for key,val in keys.items():
             listBox.add(ListBoxRowWithKeyData(key, format_listbox_keydata(val)))
 
         listBox.connect('row-activated', self.on_row_activated, self.builder)
@@ -243,8 +249,9 @@ class Application(Gtk.Application):
         print ("Gtk.Entry text changed: {}".format(input_text))
 
         if len(input_text) == 40:
-            for keyid,val in data.items():
-                key = data[keyid]
+            keys = get_secret_keys()
+            for keyid,val in keys.items():
+                key = keys[keyid]
 
                 if val['fpr'] == entryObject.get_text():
                     keyIdsLabel = self.builder.get_object("key_ids_label")
@@ -273,7 +280,9 @@ class Application(Gtk.Application):
                 dialog.destroy()
 
     def on_row_activated(self, listBoxObject, listBoxRowObject, builder, *args):
-        key = data[listBoxRowObject.keyid]
+        keys = get_secret_keys()
+        # FIXME: Get the object out of the list model!  
+        key = keys[listBoxRowObject.keyid]
 
         keyidLabel = self.builder.get_object("keyidLabel")
         keyid_str = "{0}".format(key['id'])
