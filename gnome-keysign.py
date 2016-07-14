@@ -25,7 +25,7 @@ _data = {
                      'sigs':['ED8312A2']
                     }
                     ],
-              'expire':'2016-12-12',
+              'expiry':'2016-12-12',
               'nsigs':3
              },
     'key2' : {'id':'2048R/D32DFCFB 2015-08-20',
@@ -35,7 +35,7 @@ _data = {
                      'sigs':['D32DFCFB','6FB8DCCE']
                     }
                     ],
-              'expire':'2016-05-20',
+              'expiry':'2016-05-20',
               'nsigs':2
              },
     'key3' : {'id':'2048R/ED8312A2 2010-04-08',
@@ -45,7 +45,7 @@ _data = {
                      'sigs':['ED8312A2']
                     }
                     ],
-              'expire':'2016-07-14',
+              'expiry':'2016-07-14',
               'nsigs':1
              },
     'key4' : {'id':'2048R/D32DFCFB 2013-01-01',
@@ -55,13 +55,29 @@ _data = {
                      'sigs':['D32DFCFB','6FB8DCCE', '8956D0D3']
                     }
                     ],
-              'expire':'2020-05-05',
+              'expiry':'2020-05-05',
               'nsigs':3
              },
 }
 
 def get_secret_keys(pattern=None):
-    return _data
+    data = None
+    try:
+        import keysign.gpgmh as gpgmh
+    except ImportError as e:
+        print e
+        try:
+            import gpgmh
+        except ImportError as e:
+            print e
+            data = _data
+
+    if data is None:
+        keys = gpgmh.get_usable_secret_keys_dict()
+        
+        data = { k['fpr']: k   for k in keys['keys']}
+
+    return data
 
 
 # The states that the app can have during run-time
@@ -75,7 +91,7 @@ CONFIRM_KEY_STATE = 4
 def format_listbox_keydata(keydata):
     keyid = keydata['id']
     uids = keydata['uids']
-    expire = keydata['expire']
+    expire = keydata['expiry']
     nsigs = keydata['nsigs']
 
     result = "<b>{0}</b>\t\t\t{1}\n".format(keyid, nsigs)
