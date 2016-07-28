@@ -61,7 +61,7 @@ class ApplicationWindow(Gtk.ApplicationWindow):
             self.builder.add_from_file("send.ui")
             self.builder.add_from_file("receive.ui")
         except:
-            self.log.exception("ui file not found")
+            logging.exception("ui file not found")
             sys.exit()
 
         self.builder.connect_signals(self)
@@ -72,8 +72,12 @@ class ApplicationWindow(Gtk.ApplicationWindow):
         self.cancel_flag = False
         self.key = None
 
-        self.appwindow = self.builder.get_object("applicationwindow1")
-
+        window = self.builder.get_object("applicationwindow1")
+        for child in window.get_children():
+            window.remove(child)
+            self.add(child)
+        window.destroy()
+        
         self.connect('valid-fingerprint', self.on_valid_fingerprint)
         self.connect('sign-key-confirmed', self.on_sign_key_confirmed)
 
@@ -102,9 +106,6 @@ class ApplicationWindow(Gtk.ApplicationWindow):
         self.listbox.connect('row-selected', self.on_row_selected, self.builder)
 
 
-
-    def do_show_all(self):
-        self.appwindow.show_all()
 
     def update_key_list(self):
         #FIXME do not remove rows, but update data
